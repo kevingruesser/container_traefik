@@ -1,0 +1,31 @@
+# General Traefik configuration
+traefik_active: true                      # Activate Traefik
+traefik_version: "2.10"                   # The version of Traefik to use
+traefik_http_port: 80                     # Host port for HTTP traffic
+traefik_https_port: 443                   # Host port for HTTPS traffic
+traefik_log_level: "INFO"                 # Log level (DEBUG, INFO, WARN, ERROR)
+docker_exposed_by_default: false          # Whether Docker containers are exposed by default
+traefik_folder: "/etc/traefik"            # Folder for Traefik configuration files
+cloudflare_mail: "your-cloudflare-email@example.com" # Cloudflare email for ACME
+cloudflare_token: "your-cloudflare-api-token"        # Cloudflare API token for DNS challenges
+acme_storage_path: "/etc/traefik/acme.json"          # Path to the ACME storage file
+
+# TLS certificates and SAN entries
+# List additional domains/subdomains to include in the TLS certificate.
+traefik_sans_0: "example.com"
+traefik_sans_1: "another-example.com"
+traefik_sans_2: "subdomain.example.com"
+
+# Documentation
+# ----------------------------
+# - **traefik_active**: Enable/Disable the container
+# - **traefik_version**: The Traefik version used in the container.
+# - **traefik_http_port**: The host port mapped to the Traefik container's HTTP entry point.
+# - **traefik_https_port**: The host port mapped to the Traefik container's HTTPS entry point.
+# - **ddns_active**: Enables DNS ports (53 TCP/UDP) for DynDNS functionality.
+# - **traefik_log_level**: The log verbosity level (default is INFO).
+# - **docker_exposed_by_default**: Whether Traefik should expose Docker containers by default.
+# - **traefik_folder**: Directory for Traefik configuration and dynamic file providers.
+# - **cloudflare_mail**/**cloudflare_token**: Credentials for Cloudflare API used in ACME DNS challenges.
+# - **acme_storage_path**: Path to the ACME storage file for Let's Encrypt certificates.
+# - **traefik_sans_X**: Additional domains/subdomains for SAN in the TLS certificate.

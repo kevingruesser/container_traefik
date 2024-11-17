@@ -1,0 +1,70 @@
+---
+services:
+  traefik:
+    image: traefik:{{ traefik_version }}
+    name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      traefik:
+    ports:
+      - {{ traefik_http_port }}:80
+      - {{ traefik_https_port }}:443
+{% if ddns_active %}
+      # DynDNS
+      - 53:53/tcp 
+      - 53:53/udp
+{% endif %}  
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - {{ traefik_folder }}/data/traefik.yml:/traefik.yml:ro
+      - {{ traefik_folder }}/data/config.d:/config.d:ro
+      - {{ traefik_folder }}/data/traefik.log:/var/log/traefik/traefik.log
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      - CF_API_EMAIL=${CLOUDFLARE_MAIL}
+      - CF_DNS_API_TOKEN=${CLOUDFLARE_TOKEN}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.entrypoints=http"
+      - "traefik.http.routers.traefik.rule=Host(`{{ traefik_domain }}`)"
+      - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.routers.traefik.middlewares=traefik-https-redirect"
+      - "traefik.http.routers.traefik-secure.entrypoints=https"
+{% if authelia_active %}
+      - "traefik.http.routers.traefik-secure.middlewares=middlewares-authelia@file"
+{% else %}
+      - "traefik.http.middlewares.basic-auth.basicauth.users=${BASICAUTH_USER}:${BASICAUTH_PASSWORD}"
+      - "traefik.http.routers.traefik-secure.middlewares=basic-auth"
+{% endif %}  
+      - "traefik.http.routers.traefik-secure.rule=Host(`{{ traefik_domain }}`)"
+      - "traefik.http.routers.traefik-secure.tls=true"
+      - "traefik.http.routers.traefik-secure.tls.certresolver=cloudflare"
+{% for key, value in hostvars[inventory_hostname] | dict2items if key.startswith('traefik_sans_') %}
+      - "traefik.http.routers.traefik-secure.tls.domains[{{ loop.index0 }}].main={{ value }}"
+      - "traefik.http.routers.traefik-secure.tls.domains[{{ loop.index0 }}].sans=*.{{ value }}"
+{% endfor %}
+{% endfor %}
+      # Catch-All Router
+{% if traefik_second_instance %}
+      - "traefik.http.routers.catchall.rule=HostRegexp(`{host:.+}`)"
+      - "traefik.http.routers.catchall.entrypoints=http,https"
+      - "traefik.http.routers.catchall.service=catchall-forward"
+      # Forward Service to the internal Traefik instance
+      - "traefik.http.services.catchall-forward.loadbalancer.server.url=https://{{ traefik_second_instance }}"
+{% else %}
+      - "traefik.http.routers.traefik-secure.service=api@internal"
+      - "traefik.http.routers.catchall.rule=HostRegexp(`{host:.+}`)"
+      - "traefik.http.routers.catchall.middlewares=error-page"
+{% endif %}  
+
+networks:
+  traefik:
+    external: true

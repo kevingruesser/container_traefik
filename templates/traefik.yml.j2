@@ -1,0 +1,58 @@
+---
+api:
+  dashboard: true
+
+log:
+  level: {{ traefik_log_level | default("INFO") }}
+  format: json
+  filePath: "/var/log/traefik.log" 
+
+accessLog:
+  filePath: "/var/log/crowdsec/traefik.log"
+  bufferingSize: 50
+
+entryPoints:
+  http:
+    address: ":80"
+  https:
+    address: ":443"
+    http:
+      tls:
+        strictSNIHost: true
+  ping:
+    address: ":8082"
+{% if ddns_active %}
+  # DynDNS
+  dns-tcp:
+    address: ":53/tcp"
+  dns-udp:
+    address: ":53/udp"
+{% endif %} 
+
+ping: {}
+
+serversTransport:
+  insecureSkipVerify: false
+  forwardingTimeouts:
+    dialTimeout: 10s
+    responseHeaderTimeout: 10s
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: {{ docker_exposed_by_default | default(false) }}
+    watch: true
+  file:
+    directory: "/config.d/"
+    watch: true
+
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: "{{ cloudflare_email }}"
+      storage: acme.json
+      dnsChallenge:
+        provider: cloudflare
+        resolvers:
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"
