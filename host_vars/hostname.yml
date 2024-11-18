@@ -1,6 +1,6 @@
 # General Traefik configuration
 traefik_active: true                      # Activate Traefik
-traefik_version: "2.10"                   # The version of Traefik to use
+traefik_version: "3.3"                    # The version of Traefik to use (default is 3.3)
 traefik_http_port: 80                     # Host port for HTTP traffic
 traefik_https_port: 443                   # Host port for HTTPS traffic
 traefik_log_level: "INFO"                 # Log level (DEBUG, INFO, WARN, ERROR)
@@ -22,7 +22,7 @@ traefik_sans_2: "subdomain.example.com"
 # Documentation
 # ----------------------------
 # - **traefik_active**: Enable/Disable the container
-# - **traefik_version**: The Traefik version used in the container.
+# - **traefik_version**: The Traefik version used in the container. (default is 3.3)
 # - **traefik_http_port**: The host port mapped to the Traefik container's HTTP entry point.
 # - **traefik_https_port**: The host port mapped to the Traefik container's HTTPS entry point.
 # - **traefik_certresolver**: Choose of Certificates should be handled (default is cloudflare). If Wildcard is active you need to put the wildcard.crt and wildcard.key files in the "files" folder, 

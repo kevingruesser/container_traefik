@@ -1,7 +1,7 @@
 ---
 services:
   traefik:
-    image: traefik:{{ traefik_version }}
+    image: traefik:{{ traefik_version | default(3.3) }}
     name: traefik
     restart: unless-stopped
     security_opt:
