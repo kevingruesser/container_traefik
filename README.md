@@ -61,16 +61,15 @@ This file contains host-specific variables for the Traefik instance. Example:
 
 ```yaml
 traefik_active: true
-traefik_version: "2.10"
+traefik_version: "3.3"
 traefik_http_port: 80
 traefik_https_port: 443
-ddns_active: true
 traefik_log_level: "INFO"
+traefik_certresolver: "cloudflare"
+traefik_second_instance: false
+traefik_second_instance_url_or_ip: "traefik2.intra.example.com"
 docker_exposed_by_default: false
 traefik_folder: "/etc/traefik"
 cloudflare_mail: "your-cloudflare-email@example.com"
 cloudflare_token: "your-cloudflare-api-token"
 acme_storage_path: "/etc/traefik/acme.json"
-traefik_sans_0: "example.com"
-traefik_sans_1: "another-example.com"
-traefik_sans_2: "subdomain.example.com"
