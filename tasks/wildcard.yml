@@ -1,0 +1,22 @@
+---
+- name: Create wildcard certificates directory
+  file:
+    path: '{{ traefik_folder }}/data/certs/'
+    state: directory
+    mode: '0775'
+    recurse: yes
+
+- name: Copy wildcard certificate files
+  copy:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+    mode: '0664'
+  loop:
+    - { src: 'wildcard.crt', dest: '{{ traefik_folder }}/data/certs/wildcard.crt' }
+    - { src: 'wildcard.key', dest: '{{ traefik_folder }}/data/certs/wildcard.key' }
+
+- name: Render TLS configuration template
+  template:
+    src: 'tls.yml.j2'
+    dest: '{{ traefik_folder }}/data/config.d/tls.yml'
+    mode: '0664'

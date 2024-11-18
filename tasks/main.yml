@@ -1,102 +1,18 @@
 ---
-- name: Create Container Structure
-  ansible.builtin.file:
-    path: '{{ traefik_folder }}/data/config.d/'
-    state: directory
-    mode: '0775'
-    recurse: yes
 
-- name: Create Wildcard Path
-  ansible.builtin.file:
-    path: '{{ traefik_folder }}/data/certs/'
-    state: directory
-    mode: '0775'
-    recurse: yes
+- name: Setup prerequisites
+  import_tasks: setup.yml
+
+- name: Configure Cloudflare DNS (if applicable)
+  import_tasks: cloudflare.yml
+  when: traefik_certresolver == "cloudflare"
+
+- name: Deploy configuration files
+  import_tasks: config.yml
+
+- name: Handle wildcard certificates (if applicable)
+  import_tasks: wildcard.yml
   when: traefik_certresolver == "wildcard"
 
-- name: Create a new Cloudflare "{{ traefik_cloudflare_type }}" record
-  community.general.cloudflare_dns:
-    zone: "{{ traefik_cloudflare_zone }}"
-    record: "{{ traefik_cloudflare_record }}"
-    type: "{{ traefik_cloudflare_type }}"
-    value: "{{ traefik_cloudflare_value }}"
-    account_email: "{{ cloudflare_email }}"
-    api_token: "{{ cloudflare_api_key }}"
-  register: record
-  when: traefik_certresolver == "cloudflare" 
-
-- name: Copy Static Files
-  ansible.builtin.copy:
-    src: '{{ item.src }}'
-    dest: '{{ item.dest }}'
-    mode: 0664
-  loop:
-    - {src: 'default.yml', dest: '{{ traefik_folder }}/data/config.d/default.yml'}
-
-- name: Render Template Files
-  ansible.builtin.template:
-    src: '{{ item.src }}'
-    dest: '{{ item.dest }}'
-  loop:
-    - {src: '.env.j2', dest: '{{ traefik_folder }}/.env'}
-    - {src: 'traefik.yml.j2', dest: '{{ traefik_folder }}/data/traefik.yml'}
-    - {src: 'docker-compose.yml.j2', dest: '{{ traefik_folder }}/docker-compose.yml'}
-
-- name: Render Template Files for Wildcard Certificates
-  ansible.builtin.template:
-    src: '{{ item.src }}'
-    dest: '{{ item.dest }}'
-  loop:
-    - {src: 'tls.yml.j2', dest: '{{ traefik_folder }}/data/config.d/tls.yml'}
-  when: traefik_certresolver == "wildcard" 
-
-- name: Copy files for Wildcard certificate
-  ansible.builtin.copy:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-  loop:
-    - { src: "wildcard.crt", dest: "{{ traefik_folder }}/data/certs/wildcard.crt", mode: "0664" }
-    - { src: "wildcard.key", dest: "{{ traefik_folder }}/data/certs/wildcard.key", mode: "0664" }
-  when: traefik_certresolver == "wildcard" 
-
-- name: check if acme.json exists
-  stat:
-    path: '{{ traefik_folder }}/data/acme.json'
-  register: stat_result
-
-- name: Create acme.json
-  file:
-    path: '{{ traefik_folder }}/data/acme.json'
-    state: touch
-    mode: '0600'
-  when: not stat_result.stat.exists
-
-- name: Make Sure acme.json is only writeable by host
-  ansible.builtin.file:
-    path: '{{ traefik_folder }}/data/acme.json'
-    mode: '0600'
-
-- name: check if traefik.log exists
-  stat:
-    path: '{{ traefik_folder }}/data/traefik.log'
-  register: log_result
-
-- name: Create traefik.log
-  file:
-    path: '{{ traefik_folder }}/data/traefik.log'
-    state: touch
-    mode: '0755'
-  when: not log_result.stat.exists
-
-- name: Stop running Docker-Container
-  community.docker.docker_compose_v2:
-    project_src: '{{ traefik_folder }}'
-    state: absent
-  ignore_errors: true
-
-- name: Start Docker-Container
-  community.docker.docker_compose_v2:
-    project_src: '{{ traefik_folder }}'
-    state: present
-    recreate: always
-  when: traefik_active | default(false)
+- name: Handle Traefik container
+  import_tasks: handler.yml

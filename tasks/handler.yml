@@ -1,0 +1,13 @@
+---
+- name: Stop existing Traefik container (if any)
+  community.docker.docker_compose:
+    project_src: '{{ traefik_folder }}'
+    state: absent
+  ignore_errors: true
+
+- name: Start Traefik container
+  community.docker.docker_compose:
+    project_src: '{{ traefik_folder }}'
+    state: present
+    recreate: always
+  when: traefik_active | default(false)

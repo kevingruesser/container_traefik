@@ -1,0 +1,10 @@
+---
+- name: Create a new Cloudflare "{{ traefik_cloudflare_type }}" record
+  community.general.cloudflare_dns:
+    zone: "{{ traefik_cloudflare_zone }}"
+    record: "{{ traefik_cloudflare_record }}"
+    type: "{{ traefik_cloudflare_type }}"
+    value: "{{ traefik_cloudflare_value }}"
+    account_email: "{{ cloudflare_email }}"
+    api_token: "{{ cloudflare_api_key }}"
+  register: cloudflare_record
