@@ -5,6 +5,14 @@
     state: absent
   ignore_errors: true
 
+- name: Build Traefik Docker image
+  community.docker.docker_image:
+    build:
+      path: '{{ traefik_folder }}'
+    name: traefik_skullit
+    tag: latest
+  when: traefik_active | default(false)
+
 - name: Start Traefik container
   community.docker.docker_compose:
     project_src: '{{ traefik_folder }}'

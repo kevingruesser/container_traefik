@@ -1,0 +1,17 @@
+FROM traefik:{{ traefik_version }}
+
+# Create Directories and Permissions
+RUN mkdir -p /etc/traefik/config.d \
+    && mkdir -p /etc/traefik/certs \
+    && touch /etc/traefik/acme.json \
+    && chmod 600 /etc/traefik/acme.json \
+    && touch /etc/traefik/traefik.log \
+    && chmod 755 /etc/traefik/traefik.log
+
+COPY data/traefik.yml /etc/traefik/traefik.yml
+COPY data/config.d/ /etc/traefik/config.d/
+COPY data/certs/ /etc/traefik/certs/
+
+EXPOSE 80 443
+
+CMD ["traefik"]

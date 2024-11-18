@@ -1,7 +1,7 @@
 ---
 services:
   traefik:
-    image: traefik:{{ traefik_version | default(3.3) }}
+    build: .
     name: traefik
     restart: unless-stopped
     security_opt:
@@ -17,11 +17,7 @@ services:
       - 53:53/udp
 {% endif %}  
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - {{ traefik_folder }}/data/traefik.yml:/traefik.yml:ro
-      - {{ traefik_folder }}/data/config.d:/config.d:ro
-      - {{ traefik_folder }}/data/traefik.log:/var/log/traefik/traefik.log
+      - traefik_data:/etc/traefik
 {% if traefik_certresolver == "wildcard" %}
       - {{ traefik_folder }}/data/certs:/etc/certs:ro
 {% endif %} 
