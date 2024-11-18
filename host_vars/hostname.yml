@@ -4,6 +4,9 @@ traefik_version: "2.10"                   # The version of Traefik to use
 traefik_http_port: 80                     # Host port for HTTP traffic
 traefik_https_port: 443                   # Host port for HTTPS traffic
 traefik_log_level: "INFO"                 # Log level (DEBUG, INFO, WARN, ERROR)
+traefik_certresolver: "cloudflare"        # certresolver (cloudflare, letsencrypt, wildcard)
+traefik_second_instance: true             # If using a second instance of Traefik
+traefik_second_instance_url_or_ip: "traefik2.intra.example.com" # URL or IP of the Second Traefik Instance
 docker_exposed_by_default: false          # Whether Docker containers are exposed by default
 traefik_folder: "/etc/traefik"            # Folder for Traefik configuration files
 cloudflare_mail: "your-cloudflare-email@example.com" # Cloudflare email for ACME
@@ -22,6 +25,9 @@ traefik_sans_2: "subdomain.example.com"
 # - **traefik_version**: The Traefik version used in the container.
 # - **traefik_http_port**: The host port mapped to the Traefik container's HTTP entry point.
 # - **traefik_https_port**: The host port mapped to the Traefik container's HTTPS entry point.
+# - **traefik_certresolver**: Choose of Certificates should be handled (default is cloudflare). If Wildcard is active you need to put the wildcard.crt and wildcard.key files in the "files" folder, 
+# - **traefik_second_instance**: Forward unknown host lookups to an second instance of Traefik. 
+# - **traefik_second_instance_url_or_ip**: URL or IP of the Second Traefik instance.
 # - **ddns_active**: Enables DNS ports (53 TCP/UDP) for DynDNS functionality.
 # - **traefik_log_level**: The log verbosity level (default is INFO).
 # - **docker_exposed_by_default**: Whether Traefik should expose Docker containers by default.
