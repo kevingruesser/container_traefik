@@ -5,7 +5,7 @@ services:
     name: traefik
     restart: unless-stopped
     security_opt:
-      - no-new-privileges:true
+      - "no-new-privileges:true"
     networks:
       traefik:
     ports:
@@ -22,14 +22,17 @@ services:
       - {{ traefik_folder }}/data/traefik.yml:/traefik.yml:ro
       - {{ traefik_folder }}/data/config.d:/config.d:ro
       - {{ traefik_folder }}/data/traefik.log:/var/log/traefik/traefik.log
+{% if traefik_certresolver == "wildcard" %}
+      - {{ traefik_folder }}/data/certs:/etc/certs:ro
+{% endif %} 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/ping"]
       interval: 30s
       timeout: 10s
       retries: 3
     environment:
-      - CF_API_EMAIL=${CLOUDFLARE_MAIL}
-      - CF_DNS_API_TOKEN=${CLOUDFLARE_TOKEN}
+      - "CF_API_EMAIL=${CLOUDFLARE_MAIL}"
+      - "CF_DNS_API_TOKEN=${CLOUDFLARE_TOKEN}"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.entrypoints=http"
@@ -43,14 +46,15 @@ services:
 {% else %}
       - "traefik.http.middlewares.basic-auth.basicauth.users=${BASICAUTH_USER}:${BASICAUTH_PASSWORD}"
       - "traefik.http.routers.traefik-secure.middlewares=basic-auth"
-{% endif %}  
+{% endif %}
       - "traefik.http.routers.traefik-secure.rule=Host(`{{ traefik_domain }}`)"
       - "traefik.http.routers.traefik-secure.tls=true"
+{% if traefik_certresolver == "cloudflare" %}
       - "traefik.http.routers.traefik-secure.tls.certresolver=cloudflare"
+{% endif %}
 {% for key, value in hostvars[inventory_hostname] | dict2items if key.startswith('traefik_sans_') %}
       - "traefik.http.routers.traefik-secure.tls.domains[{{ loop.index0 }}].main={{ value }}"
       - "traefik.http.routers.traefik-secure.tls.domains[{{ loop.index0 }}].sans=*.{{ value }}"
-{% endfor %}
 {% endfor %}
       # Catch-All Router
 {% if traefik_second_instance %}
@@ -58,7 +62,7 @@ services:
       - "traefik.http.routers.catchall.entrypoints=http,https"
       - "traefik.http.routers.catchall.service=catchall-forward"
       # Forward Service to the internal Traefik instance
-      - "traefik.http.services.catchall-forward.loadbalancer.server.url=https://{{ traefik_second_instance }}"
+      - "traefik.http.services.catchall-forward.loadbalancer.server.url=https://{{ traefik_second_instance_url_or_ip }}"
 {% else %}
       - "traefik.http.routers.traefik-secure.service=api@internal"
       - "traefik.http.routers.catchall.rule=HostRegexp(`{host:.+}`)"
