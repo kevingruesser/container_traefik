@@ -1,0 +1,25 @@
+---
+# General Traefik configuration
+traefik_active: true
+traefik_version: "3.3"
+traefik_http_port: 80
+traefik_https_port: 443
+traefik_log_level: "INFO"
+traefik_certresolver: "cloudflare"
+traefik_second_instance: false
+traefik_second_instance_url_or_ip: ""
+docker_exposed_by_default: false
+traefik_folder: "/opt/ansible_container/container_traefik"
+cloudflare_mail: ""
+cloudflare_token: ""
+acme_storage_path: "{{ traefik_folder }}/acme.json"
+ddns_active: false
+authelia_active: false
+traefik_domain: "traefik.example.com"
+
+# Traefik SAN entries
+traefik_sans: []
+
+# Basic Auth Credentials
+basicauth_user: ""
+basicauth_password: ""
