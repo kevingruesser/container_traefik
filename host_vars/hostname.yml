@@ -8,7 +8,7 @@ traefik_certresolver: "cloudflare"        # certresolver (cloudflare, letsencryp
 traefik_second_instance: false            # If using a second instance of Traefik (default is false)
 traefik_second_instance_url_or_ip: "traefik2.intra.example.com" # URL or IP of the Second Traefik Instance
 docker_exposed_by_default: false          # Whether Docker containers are exposed by default
-traefik_folder: "/etc/traefik"            # Folder for Traefik configuration files
+traefik_folder: "/opt/ansible_container/container_traefik" # Folder for Traefik configuration files
 cloudflare_mail: "your-cloudflare-email@example.com" # Cloudflare email for ACME
 cloudflare_token: "your-cloudflare-api-token"        # Cloudflare API token for DNS challenges
 acme_storage_path: "/etc/traefik/acme.json"          # Path to the ACME storage file
