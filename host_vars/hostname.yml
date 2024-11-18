@@ -1,11 +1,11 @@
 # General Traefik configuration
 traefik_active: true                      # Activate Traefik
 traefik_version: "3.3"                    # The version of Traefik to use (default is 3.3)
-traefik_http_port: 80                     # Host port for HTTP traffic
-traefik_https_port: 443                   # Host port for HTTPS traffic
+traefik_http_port: 80                     # Host port for HTTP traffic (default is 80)
+traefik_https_port: 443                   # Host port for HTTPS traffic (default is 443)
 traefik_log_level: "INFO"                 # Log level (DEBUG, INFO, WARN, ERROR)
 traefik_certresolver: "cloudflare"        # certresolver (cloudflare, letsencrypt, wildcard)
-traefik_second_instance: true             # If using a second instance of Traefik
+traefik_second_instance: false            # If using a second instance of Traefik (default is false)
 traefik_second_instance_url_or_ip: "traefik2.intra.example.com" # URL or IP of the Second Traefik Instance
 docker_exposed_by_default: false          # Whether Docker containers are exposed by default
 traefik_folder: "/etc/traefik"            # Folder for Traefik configuration files
@@ -15,18 +15,18 @@ acme_storage_path: "/etc/traefik/acme.json"          # Path to the ACME storage 
 
 # TLS certificates and SAN entries
 # List additional domains/subdomains to include in the TLS certificate.
-traefik_sans_0: "example.com"
-traefik_sans_1: "another-example.com"
-traefik_sans_2: "subdomain.example.com"
+#traefik_sans_0: "example.com"
+#traefik_sans_1: "another-example.com"
+#traefik_sans_2: "subdomain.example.com"
 
 # Documentation
 # ----------------------------
 # - **traefik_active**: Enable/Disable the container
 # - **traefik_version**: The Traefik version used in the container. (default is 3.3)
-# - **traefik_http_port**: The host port mapped to the Traefik container's HTTP entry point.
-# - **traefik_https_port**: The host port mapped to the Traefik container's HTTPS entry point.
+# - **traefik_http_port**: The host port mapped to the Traefik container's HTTP entry point (default is 80).
+# - **traefik_https_port**: The host port mapped to the Traefik container's HTTPS entry point (default is 443).
 # - **traefik_certresolver**: Choose of Certificates should be handled (default is cloudflare). If Wildcard is active you need to put the wildcard.crt and wildcard.key files in the "files" folder, 
-# - **traefik_second_instance**: Forward unknown host lookups to an second instance of Traefik. 
+# - **traefik_second_instance**: Forward unknown host lookups to an second instance of Traefik (default is false). 
 # - **traefik_second_instance_url_or_ip**: URL or IP of the Second Traefik instance.
 # - **ddns_active**: Enables DNS ports (53 TCP/UDP) for DynDNS functionality.
 # - **traefik_log_level**: The log verbosity level (default is INFO).
