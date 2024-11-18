@@ -46,7 +46,10 @@ providers:
     directory: "/config.d/"
     watch: true
 
+{% if traefik_certresolver == "cloudflare" || traefik_certresolver == "letsencrypt" %}
 certificatesResolvers:
+{% endif %}
+{% if traefik_certresolver == "cloudflare" %}
   cloudflare:
     acme:
       email: "{{ cloudflare_email }}"
@@ -56,3 +59,12 @@ certificatesResolvers:
         resolvers:
           - "1.1.1.1:53"
           - "1.0.0.1:53"
+{% endif %}
+{% if traefik_certresolver == "letsencrypt" %}
+certificatesResolvers:
+  le:
+    acme:
+      email: {{ cloudflare_mail }}
+      storage: /letsencrypt/acme.json
+      tlsChallenge: {}
+{% endif %}
